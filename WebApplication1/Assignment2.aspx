@@ -4,6 +4,7 @@
     <title>Assignment 2</title>
     <script src="Scripts/jquery-3.3.1.min.js"></script>
     <script src="Scripts/jquery.signalR-2.2.2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
 </head>
 <body>
     <div id="inputForm">
@@ -36,7 +37,7 @@
     </div>
 
     <div id="graphDiv" hidden>
-        I should should graph here
+        <canvas id="canvas"></canvas>
     </div>
 
     <script src="signalr/hubs"></script>
@@ -44,7 +45,29 @@
         $(function () {
             var quiz = $.connection.quizHub;
             quiz.client.updateGraph = function (voteJSON) {
-                $("#graphDiv").text(voteJSON);
+                voteJSON = JSON.parse(voteJSON);
+                var labels = Object.keys(voteJSON);
+                var data = Object.values(voteJSON);
+
+                var ctx = canvas.getContext('2d');
+
+                var options = {
+                    responsive: false
+                }
+
+                var config = {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels, //["Red", "Yellow", "Blue"],
+                        datasets: [{
+                            data: data, //[10, 20, 30],
+                            //backgroundColor: ["Red", "Yellow","Blue"]
+                        }]
+                    },
+                    options: options
+                };
+
+                var chart = new Chart(ctx, config);
             };
             $.connection.hub.start().done(function () {
                 $('#submitDrink').click(function () {
