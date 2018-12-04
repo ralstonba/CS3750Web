@@ -5,6 +5,13 @@
     <script src="Scripts/jquery-3.3.1.min.js"></script>
     <script src="Scripts/jquery.signalR-2.2.2.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
+    <script src="https://codepen.io/anon/pen/aWapBE.js"></script>
+    <style>
+        canvas{
+            width:100px;
+            height:100px;
+        }
+    </style>
 </head>
 <body>
     <div id="inputForm">
@@ -37,19 +44,22 @@
     </div>
 
     <div id="graphDiv" hidden>
-        <canvas id="canvas"></canvas>
+        <canvas id="canvas" height="500" width="500"></canvas>
     </div>
 
     <script src="signalr/hubs"></script>
     <script type="text/javascript">
         $(function () {
             var quiz = $.connection.quizHub;
+            var chart = null;
+
             quiz.client.updateGraph = function (voteJSON) {
                 voteJSON = JSON.parse(voteJSON);
                 var labels = Object.keys(voteJSON);
                 var data = Object.values(voteJSON);
 
                 var ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
 
                 var options = {
                     responsive: false
@@ -61,13 +71,19 @@
                         labels: labels, //["Red", "Yellow", "Blue"],
                         datasets: [{
                             data: data, //[10, 20, 30],
-                            //backgroundColor: ["Red", "Yellow","Blue"]
-                        }]
+                            backgroundColor: palette('tol', data.length).map(function (hex) {
+                                return '#' + hex;
+                            })
+                        }], //["Red", "Yellow","Blue"]
                     },
                     options: options
                 };
 
-                var chart = new Chart(ctx, config);
+                if (chart != null) {
+                    chart.destroy();
+                }
+
+                chart = new Chart(ctx, config);
             };
             $.connection.hub.start().done(function () {
                 $('#submitDrink').click(function () {

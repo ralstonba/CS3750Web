@@ -33,7 +33,8 @@ public sealed class Singleton
         {
             if (votes.ContainsKey(drink))
             {
-                votes[drink] = votes[drink]++;
+                votes.TryGetValue(drink, out var currentCount);
+                votes[drink] = currentCount + 1;
             }
             else
             {
